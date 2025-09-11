@@ -4,41 +4,35 @@ A comprehensive specification-driven development orchestrator **orch Claude Code
 
 ## 🎯 Executive Summary
 
-**Orchestrator** transforms chaotic "agile" (single-prompt-shot's vibe-coding and non-interactive's spec-kit approaches) by conducting user interviews and research, in an interactive friendly way ensuring **systematic, specification-driven workflows** that produce high-quality, well-documented software. By enforcing a structured **spec → research → plan → tasks** methodology with user approval gates, Orchestrator ensures every development phase is properly validated before implementation.
+**Orchestrator** transforms chaotic "agile" (single-prompt-shot's vibe-coding and non-interactive's spec-kit approaches) by conducting user interviews and research, in an interactive friendly way ensuring **systematic, specification-driven workflows** that produce high-quality, well-documented software. By enforcing a structured **spec → research → plan → prd → tasks** methodology with user approval gates, Orchestrator ensures every development phase is properly validated before implementation.
 
 ### The Methodology
 
-Orchestrator implements a **four-phase workflow** with mandatory approval gates:
+Orchestrator implements a **five-phase workflow** with mandatory approval gates:
 
 1. **📋 Specification Phase**: Interactive interviews generate comprehensive requirements and constraints
 2. **🔬 Research Phase**: Systematic technical analysis with validated sources and best practices  
 3. **📐 Planning Phase**: Architectural design and implementation strategies
-4. **✅ Tasks Phase**: Executable task breakdown with clear dependencies and numbering
+4. **📊 PRD Phase**: MVP definition with semantic analysis and feature prioritization
+5. **✅ Tasks Phase**: Executable task breakdown with clear dependencies and numbering
 
 Each phase requires **explicit user approval** before progression, ensuring alignment and quality throughout the development process.
 
 ### Workflow Decision Diagram
 
 ```ascii
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    SPEC     │───▶│  RESEARCH   │───▶│    PLAN     │───▶│    TASKS    │
-│ Interactive │    │ Technical   │    │Architecture │    │Breakdown &  │
-│ Interview   │    │ Analysis    │    │ Design      │    │Dependencies │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-        │                   │                   │                   │
-        ▼                   ▼                   ▼                   ▼
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│USER APPROVAL│    │USER APPROVAL│    │USER APPROVAL│    │IMPLEMENTATION│
-│Required     │    │Required     │    │Required     │    │via Claude   │
-│to proceed   │    │to proceed   │    │to proceed   │    │Code CLI     │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-        │                   │                   │                   │
-        ▼                   ▼                   ▼                   ▼
-   ┌─────────┐         ┌─────────┐         ┌─────────┐         ┌─────────┐
-   │Approved?│         │Approved?│         │Approved?│         │Complete?│
-   │Yes→Next │         │Yes→Next │         │Yes→Next │         │Yes→Done │
-   │No→Revise│         │No→Revise│         │No→Revise│         │No→Debug │
-   └─────────┘         └─────────┘         └─────────┘         └─────────┘
+┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+│    SPEC    │→│  RESEARCH  │→│    PLAN    │→│     PRD    │→│   TASKS    │
+│Interactive │  │ Technical  │  │Architecture│  │ MVP & Smart│  │Breakdown & │
+│ Interview  │  │  Analysis  │  │   Design   │  │Prioritization│  │Dependencies│
+└───────────┘  └───────────┘  └───────────┘  └───────────┘  └───────────┘
+     │           │           │           │           │
+     ▼           ▼           ▼           ▼           ▼
+┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+│USER APPROVAL│  │USER APPROVAL│  │USER APPROVAL│  │USER APPROVAL│  │IMPLEMENTATION│
+│  Required   │  │  Required   │  │  Required   │  │  Required   │  │via Claude   │
+│ to proceed  │  │ to proceed  │  │ to proceed  │  │ to proceed  │  │Code CLI     │
+└───────────┘  └───────────┘  └───────────┘  └───────────┘  └───────────┘
 ```
 
 ```mermaid
@@ -55,23 +49,28 @@ graph TD
     F --> G{User Approval?}
     G -->|No| F1[Revise Plan]
     F1 --> F
-    G -->|Yes| H[✅ TASKS: Breakdown & Dependencies]
+    G -->|Yes| H[📊 PRD: MVP & Semantic Analysis]
     H --> I{User Approval?}
-    I -->|No| H1[Revise Tasks]
+    I -->|No| H1[Revise PRD]
     H1 --> H
-    I -->|Yes| J[🚀 IMPLEMENTATION: Claude Code CLI]
-    J --> K{Complete?}
-    K -->|No| L[Debug & Fix]
-    L --> J
-    K -->|Yes| M[✅ Project Complete]
+    I -->|Yes| J[✅ TASKS: Breakdown & Dependencies]
+    J --> K{User Approval?}
+    K -->|No| J1[Revise Tasks]
+    J1 --> J
+    K -->|Yes| L[🚀 IMPLEMENTATION: Claude Code CLI]
+    L --> M{Complete?}
+    M -->|No| N[Debug & Fix]
+    N --> L
+    M -->|Yes| O[✅ Project Complete]
     
     style A fill:#e1f5fe
-    style M fill:#e8f5e8
+    style O fill:#e8f5e8
     style C fill:#fff3e0
     style E fill:#fff3e0
     style G fill:#fff3e0
     style I fill:#fff3e0
     style K fill:#fff3e0
+    style M fill:#fff3e0
 ```
 
 ## 🚀 Installation
@@ -139,7 +138,11 @@ target-project/
 ./orch plan <phase>
 /orch plan st01-authentication
 
-# 4. Generate Task Breakdown
+# 4. Generate PRD with Semantic Analysis
+./orch prd <phase>
+/orch prd st01-authentication
+
+# 5. Generate Task Breakdown
 ./orch tasks <phase>
 /orch tasks st01-authentication
 ```
@@ -152,8 +155,12 @@ target-project/
 /orch status st01-authentication
 
 # Process approval
-./orch approve <phase> --type <spec|research|plan|tasks> --approved
+./orch approve <phase> --type <spec|research|plan|prd|tasks> --approved
 ./orch approve st01-authentication --type spec --approved
+
+# Add to project memory
+./orch remember "All APIs must use OAuth2 authentication"
+/orch remember "Performance requirement: < 100ms response time"
 
 # Show project progress
 ./orch progress
@@ -235,6 +242,22 @@ Each command follows a **three-stage process**:
 --components "AuthService,TokenManager,UserValidator"
 ```
 
+#### PRD Command (NEW)
+```bash
+./orch prd <phase> [options]
+--mvp-goal "Secure authentication with JWT"
+--features "Login,Logout,TokenValidation,PasswordReset"
+--success-metrics "Login success rate > 99%"
+```
+
+#### Remember Command (NEW)
+```bash
+./orch remember "<directive>"
+./orch remember "All APIs must use OAuth2 authentication"
+./orch remember "Performance target: < 100ms response time"
+./orch remember "Database: PostgreSQL with connection pooling"
+```
+
 #### Tasks Command
 ```bash
 ./orch tasks <phase> [options]
@@ -245,7 +268,7 @@ Each command follows a **three-stage process**:
 #### Approval Command
 ```bash
 ./orch approve <phase> [options]
---type <spec|research|plan|tasks>
+--type <spec|research|plan|prd|tasks>  # Updated: includes PRD
 --approved | --rejected
 --comments "Looks good, approved for next phase"
 ```
@@ -260,8 +283,124 @@ dev/
     ├── spec.md              # Specification document
     ├── research.md          # Research analysis
     ├── plan.md              # Implementation plan
+    ├── prd.md               # Product Requirements (MVP focus)
     ├── tasks.md             # Task breakdown
     └── phase-state.json     # Workflow state tracking
+┌────────────────────────────────────────────────┐
+│ ENHANCED: Context Memory & Smart Features     │
+├────────────────────────────────────────────────┤
+orch-log.md                   # Project memory system
+.orchestrator/
+└── orch-config.json         # User preferences & settings
+└────────────────────────────────────────────────┘
+```
+
+## 🤖 Enhanced Features
+
+### 📊 PRD Phase with Semantic Analysis
+
+The **PRD (Product Requirements Document)** phase uses advanced semantic analysis to:
+
+#### 📈 **Smart Feature Prioritization**
+- **Complexity Analysis**: Automatically evaluates feature complexity based on:
+  - Technical keywords ("authentication", "real-time", "distributed")
+  - Implementation scope and dependencies
+  - Integration requirements
+
+- **Impact Assessment**: Analyzes business value through:
+  - User experience improvements
+  - Performance implications  
+  - Security considerations
+  - Scalability requirements
+
+#### 🎯 **MVP Intelligence**
+```bash
+/orch prd st01-authentication
+
+# Automatically generates:
+# • MVP Goal: "Secure user authentication with JWT tokens"
+# • Feature Matrix: Priority vs Complexity analysis
+# • Timeline Estimates: Based on complexity scoring
+# • Success Metrics: Measurable outcomes
+# • Out-of-Scope: Features to defer
+```
+
+#### 📆 **Priority Matrix Output**
+```
+┌─────────────────┬─────────────────┐
+│ CRITICAL (P0)   │ HIGH IMPACT (P1) │
+├─────────────────┼─────────────────┤
+│ Login/Logout    │ Password Reset   │
+│ JWT Validation  │ Profile Update   │
+│ Route Protection│ Admin Dashboard  │
+└─────────────────┴─────────────────┘
+```
+
+### 📝 Context Memory System
+
+#### **Intelligent Project Memory (orch-log.md)**
+Orchestrator maintains persistent project context with smart token management:
+
+#### 🎯 **Configurable Memory Levels**
+```bash
+# During first session, choose memory level:
+1. Critical Only (1-2K tokens)     # Errors & approvals only
+2. Errors & Warnings (3-5K tokens) # + Workflow violations  
+3. Standard Development (8-12K)     # + User decisions & progress
+4. Maximum Context (20K tokens)     # + Full chat history
+0. No logs (disabled)              # No persistent memory
+```
+
+#### 🧐 **Smart Log Management**
+- **Automatic Filtering**: Context-aware log entry filtering
+- **Token Rotation**: Intelligent rotation when approaching limits
+- **Priority Retention**: Critical information always preserved
+- **Chat Integration**: Meaningful conversations logged selectively
+
+#### 📝 **Manual Memory with Remember**
+```bash
+# Add critical project directives
+/orch remember "All APIs must use OAuth2 authentication"
+/orch remember "Performance target: < 100ms response time"
+/orch remember "Database: PostgreSQL with connection pooling"
+
+# These persist across all sessions and phases
+```
+
+#### 🔄 **Context Persistence**
+Every session automatically loads relevant context:
+- Previous phase decisions and approvals
+- User preferences and constraints
+- Project-specific requirements
+- Workflow state and progress
+
+### 🚀 First Session Intelligence
+
+Orchestrator provides intelligent onboarding:
+
+```bash
+# Automatic configuration on first use:
+👋 I'm Orch - your specification-driven development orchestrator.
+
+I transform chaos into systematic workflows:
+• Interactive specification gathering with smart suggestions
+• Sequential phases: spec → research → plan → prd → tasks  
+• Approval gates ensuring quality progression
+• Project memory via orch-log.md for context persistence
+
+Configure preferences:
+
+FEEDBACK STYLE:
+1. user-friendly (detailed explanations) [DEFAULT]
+2. professional (concise, technical)
+3. sudo-style (minimal, expert-level)
+
+CONTEXT MEMORY LEVEL:
+1. Critical Only (1-2K tokens)
+2. Errors & Warnings (3-5K tokens)  
+3. Standard Development (8-12K tokens) [RECOMMENDED]
+4. Maximum (20K tokens with chat logs)
+0. No logs (disabled)
 ```
 
 ## 🔧 Integration with Claude Code
@@ -282,7 +421,9 @@ The `orch` subagent is automatically installed and configured to:
 /orch spec st01-authentication
 /orch research st01-authentication  
 /orch plan st01-authentication
+/orch prd st01-authentication        # NEW: MVP & semantic analysis
 /orch tasks st01-authentication
+/orch remember "Critical constraint" # NEW: Add to project memory
 /orch status st01-authentication
 ```
 
@@ -291,21 +432,41 @@ The `orch` subagent is automatically installed and configured to:
 After task approval, provide tasks to Claude Code:
 
 ```
-The tasks are approved. Please implement:
-- T001: Setup authentication middleware
-- T002: Implement JWT token generation
-- T003: Create user validation service
-- T004: Add OAuth2 integration
-- T005: Write comprehensive tests
+Tasks approved. Implement according to:
 
-Refer to the complete specification at dev/st01-authentication/
+**Phase**: st01-authentication
+**Specification**: dev/st01-authentication/spec.md
+**Research**: dev/st01-authentication/research.md
+**Plan**: dev/st01-authentication/plan.md
+**PRD (MVP)**: dev/st01-authentication/prd.md
+**Tasks**: dev/st01-authentication/tasks.md
+
+**Task Breakdown**:
+- T001: Setup authentication middleware [P0 - Critical]
+- T002: Implement JWT token generation [P0 - Critical]
+- T003: Create user validation service [P0 - Critical]
+- T004: Add OAuth2 integration [P1 - High Impact]
+- T005: Write comprehensive tests [P1 - High Impact]
+
+Refer to complete documentation for context and requirements.
+See orch-log.md for project memory and constraints.
 ```
 
 ## 🛠 Troubleshooting
 
 ### Common Problems & Solutions
 
-#### 1. "Specification must be approved before starting research"
+#### 1. "Plan must be approved before starting PRD"
+
+**Problem**: Trying to run PRD before plan approval
+**Solution**: 
+```bash
+./orch approve st01-authentication --type plan --approved
+# Then proceed with PRD
+./orch prd st01-authentication
+```
+
+#### 2. "Specification must be approved before starting research"
 
 **Problem**: Trying to run research before spec approval
 **Solution**: 
@@ -315,7 +476,7 @@ Refer to the complete specification at dev/st01-authentication/
 ./orch research st01-authentication
 ```
 
-#### 2. "Phase not found" errors
+#### 3. "Phase not found" errors
 
 **Problem**: Phase doesn't exist or wrong naming
 **Solution**:
@@ -328,7 +489,7 @@ Refer to the complete specification at dev/st01-authentication/
 ./orch spec authentication       # Incorrect
 ```
 
-#### 3. Missing dependencies
+#### 4. Missing dependencies
 
 **Problem**: npm install fails
 **Solution**:
@@ -339,7 +500,7 @@ npm install
 ./install-orchestrator.sh
 ```
 
-#### 4. Orch subagent not working in Claude Code
+#### 5. Orch subagent not working in Claude Code
 
 **Problem**: `/orch` commands not recognized
 **Solution**:
@@ -354,7 +515,7 @@ ls -la .claude/agents/orch.md
 # "Please read README.md and understand the orch subagent setup"
 ```
 
-#### 5. Permission denied errors
+#### 6. Permission denied errors
 
 **Problem**: Script execution fails
 **Solution**:
@@ -363,7 +524,7 @@ chmod +x install-orchestrator.sh
 chmod +x orch
 ```
 
-#### 6. Interactive prompts not working
+#### 7. Interactive prompts not working
 
 **Problem**: CLI commands hang on input
 **Solution**:
@@ -383,7 +544,9 @@ chmod +x orch
 #### For Workflow Issues:
 1. Check phase status: `./orch status <phase>`
 2. Review approval requirements
-3. Ensure sequential progression (spec → research → plan → tasks)
+3. Ensure sequential progression (spec → research → plan → **prd** → tasks)
+4. Check project memory: Review `orch-log.md` for context
+5. Verify remember directives: Use `/orch remember` for constraints
 
 #### For Claude Code Integration:
 1. Ask Claude Code to read this README
@@ -393,10 +556,13 @@ chmod +x orch
 ### Pro Tips
 
 1. **Always use Claude Code `/orch` commands** for best experience
-2. **Read generated documents** before approving each phase  
+2. **Read generated documents** before approving each phase, especially **PRD for MVP focus**
 3. **Use descriptive phase names** following st##-name convention
 4. **Keep specifications focused** - one major feature per phase
-5. **Review dependencies** between phases before starting
+5. **Leverage context memory** - use `/orch remember` for project constraints
+6. **Review PRD priorities** - semantic analysis provides intelligent feature prioritization
+7. **Configure memory level** during first session based on project complexity
+8. **Review dependencies** between phases before starting
 
 ## 🔄 Update Installation
 
