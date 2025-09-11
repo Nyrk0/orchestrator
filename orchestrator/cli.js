@@ -1,11 +1,8 @@
-async executeDashboard() {
-    console.log(`📊 Generating project dashboard...`);
-    const { DashboardCommand } = require('./commands/dashboard');
-    const command = new DashboardCommand(this.orchestrator);
-    await command.execute();
-  }
+#!/usr/bin/env node
 
-  showVersion() {t { TemplateEngine } = require('./core/template-engine');
+const { Orchestrator } = require('./core/orchestrator');
+const { OrchStateManager } = require('./core/state-manager');
+const { TemplateEngine } = require('./core/template-engine');
 const path = require('path');
 const fs = require('fs').promises;
 const os = require('os');

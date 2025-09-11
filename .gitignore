@@ -1,8 +1,7 @@
 # Orchestrator - Public Distribution .gitignore
 # Only include files needed for installation and usage
 
-# NPM package (not ready for publication yet)
-package.json
+# NPM package (now ready for distribution)
 
 # Development artifacts (internal only)
 dev/
@@ -79,6 +78,7 @@ orchestrator-states/
 .orchestrator-states/
 phase-states/
 .phase-states/
+.orchestrator/
 
 # Backup files
 *.backup
