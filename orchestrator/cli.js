@@ -10,12 +10,30 @@ const { OrchStateManager } = require('./core/state-manager');
 const { TemplateEngine } = require('./core/template-engine');
 const path = require('path');
 const fs = require('fs').promises;
+const os = require('os');
 
 class OrchCLI {
   constructor() {
     this.orchestrator = null;
     this.defaultStateDir = './orchestrator-states';
     this.defaultTemplateDir = './templates';
+    this.configPath = path.join(os.homedir(), '.config', 'orchestrator', 'orch-config.json');
+    this.config = null;
+  }
+
+  async checkConfig() {
+    try {
+      const configData = await fs.readFile(this.configPath, 'utf8');
+      this.config = JSON.parse(configData);
+      return true;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.error('❌ Orchestrator not configured.');
+        console.log('Please run "/orch setup" to perform first-time setup.');
+        return false;
+      }
+      throw error;
+    }
   }
 
   async initialize() {
@@ -26,10 +44,14 @@ class OrchCLI {
     // Initialize orchestrator components
     const stateManager = new OrchStateManager(this.defaultStateDir);
     const templateEngine = new TemplateEngine(this.defaultTemplateDir);
-    this.orchestrator = new Orchestrator({ stateManager, templateEngine });
+    this.orchestrator = new Orchestrator({ stateManager, templateEngine, config: this.config });
   }
 
   async run() {
+    if (!await this.checkConfig()) {
+      process.exit(1); // Exit if config is missing
+    }
+
     const args = process.argv.slice(2);
     
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
@@ -265,19 +287,22 @@ class OrchCLI {
     const result = await this.orchestrator.getPhaseStatus(phase);
     
     if (result.success) {
-      console.log(`\n📋 Phase Status: ${result.phaseTitle}`);
+      console.log(`
+📋 Phase Status: ${result.phaseTitle}`);
       console.log(`🎯 Current Step: ${result.currentStep || 'Not started'}`);
       console.log(`📈 Progress: ${result.progress}%`);
       console.log(`⏭️  Next Action: ${result.nextAction || 'None'}`);
       
-      console.log(`\n✅ Approvals:`);
+      console.log(`
+✅ Approvals:`);
       console.log(`   Spec: ${result.approvals.spec ? '✓' : '○'}`);
       console.log(`   Research: ${result.approvals.research ? '✓' : '○'}`);
       console.log(`   Plan: ${result.approvals.plan ? '✓' : '○'}`);
       console.log(`   PRD: ${result.approvals.prd ? '✓' : '○'}`);
       console.log(`   Tasks: ${result.approvals.tasks ? '✓' : '○'}`);
       
-      console.log(`\n🔄 Iterations:`);
+      console.log(`
+🔄 Iterations:`);
       console.log(`   Spec: ${result.iterations.spec}`);
       console.log(`   Research: ${result.iterations.research}`);
       console.log(`   Plan: ${result.iterations.plan}`);
@@ -285,11 +310,13 @@ class OrchCLI {
       console.log(`   Tasks: ${result.iterations.tasks}`);
       
       if (result.dependencies && result.dependencies.length > 0) {
-        console.log(`\n🔗 Dependencies: ${result.dependencies.join(', ')}`);
+        console.log(`
+🔗 Dependencies: ${result.dependencies.join(', ')}`);
       }
       
       if (result.blockers && result.blockers.length > 0) {
-        console.log(`\n⚠️  Blockers: ${result.blockers.join(', ')}`);
+        console.log(`
+⚠️  Blockers: ${result.blockers.join(', ')}`);
       }
     } else {
       console.error(`❌ Status check failed: ${result.error}`);
@@ -306,12 +333,14 @@ class OrchCLI {
       
       if (phase) {
         // Phase-specific progress
-        console.log(`\n📋 Phase Progress: ${progress.phase}`);
+        console.log(`
+📋 Phase Progress: ${progress.phase}`);
         console.log(`✅ Completed Tasks: ${progress.completedTasks}`);
         console.log(`📊 Status: ${progress.status}`);
         
         if (progress.recentTasks && progress.recentTasks.length > 0) {
-          console.log(`\n🕒 Recent Activity:`);
+          console.log(`
+🕒 Recent Activity:`);
           progress.recentTasks.forEach(task => {
             console.log(`   ✅ ${task.taskId}: ${task.taskTitle}`);
             console.log(`      Completed: ${new Date(task.completedAt).toLocaleString()}`);
@@ -320,7 +349,8 @@ class OrchCLI {
       } else {
         // Overall project progress
         const summary = progress.summary;
-        console.log(`\n🎯 Overall Project Progress:`);
+        console.log(`
+🎯 Overall Project Progress:`);
         console.log(`   Project: ${progress.project}`);
         console.log(`   Total Tasks: ${summary.totalCompleted} / ${summary.totalPlanned} (${summary.completionPercentage}%)`);
         console.log(`   Phases Complete: ${summary.phasesCompleted} / ${summary.totalPhases}`);
@@ -332,7 +362,8 @@ class OrchCLI {
         }
         
         // Phase breakdown
-        console.log(`\n📋 Phase Breakdown:`);
+        console.log(`
+📋 Phase Breakdown:`);
         Object.entries(progress.phases).forEach(([phaseName, tasks]) => {
           const phaseStatus = tasks.length >= 30 ? '✅' : tasks.length >= 20 ? '🔄' : tasks.length > 0 ? '🟡' : '⏳';
           console.log(`   ${phaseStatus} ${phaseName}: ${tasks.length} tasks completed`);
@@ -340,10 +371,12 @@ class OrchCLI {
         
         // Overall status
         if (summary.completionPercentage >= 100) {
-          console.log(`\n🎉 PROJECT COMPLETE! All planned tasks have been finished.`);
+          console.log(`
+🎉 PROJECT COMPLETE! All planned tasks have been finished.`);
         } else {
           const remaining = summary.totalPlanned - summary.totalCompleted;
-          console.log(`\n📈 Project Status: ${summary.completionPercentage}% complete`);
+          console.log(`
+📈 Project Status: ${summary.completionPercentage}% complete`);
           console.log(`   Remaining: ${remaining} tasks`);
         }
       }
@@ -757,6 +790,7 @@ For more information, visit: https://github.com/your-repo/orchestrator
 `);
   }
 }
+
 
 // Run CLI if called directly
 if (require.main === module) {
