@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://qualia-nss.local/schemas/orchestrator-command.json",
+  "title": "Orchestrator Command Validation",
+  "description": "Validation schema for /orch command inputs and options",
+  "type": "object",
+  "required": ["action", "phase"],
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["spec", "research", "plan", "tasks", "status", "audit", "handoff", "board"],
+      "description": "Orchestrator command action"
+    },
+    "phase": {
+      "type": "string", 
+      "pattern": "^st\\d{2}-[a-z0-9-]+$",
+      "description": "Target phase identifier"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "force": {
+          "type": "boolean",
+          "default": false,
+          "description": "Force overwrite existing documents"
+        },
+        "interactive": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable interactive prompts"
+        },
+        "template": {
+          "type": "string",
+          "enum": ["default", "minimal", "comprehensive"],
+          "default": "default",
+          "description": "Template variant to use"
+        },
+        "tddMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable TDD validation cycles"
+        },
+        "cascadeUpdates": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic cascade updates"
+        },
+        "backupFirst": {
+          "type": "boolean",
+          "default": true,
+          "description": "Create backup before modifications"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Command execution options"
+    }
+  },
+  "definitions": {
+    "commandResult": {
+      "type": "object",
+      "required": ["success", "action", "phase", "timestamp"],
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Command execution success"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["spec", "research", "plan", "tasks", "status", "audit", "handoff", "board"]
+        },
+        "phase": {
+          "type": "string",
+          "pattern": "^st\\d{2}-[a-z0-9-]+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Command execution timestamp"
+        },
+        "document": {
+          "type": "string",
+          "description": "Generated document content"
+        },
+        "newState": {
+          "$ref": "state-schema.json",
+          "description": "Updated phase state"
+        },
+        "requiresCascade": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether downstream documents need updates"
+        },
+        "affectsTasks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether tasks.md is affected (triggers code audit)"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string",
+                "description": "Modified file path"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["created", "modified", "deleted"],
+                "description": "Change type"
+              },
+              "description": {
+                "type": "string",
+                "description": "Human-readable change description"
+              }
+            },
+            "required": ["file", "type", "description"]
+          },
+          "description": "List of changes made"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details"
+              }
+            },
+            "required": ["code", "message"]
+          },
+          "description": "Execution errors (if any)"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Execution warnings"
+        },
+        "tddResults": {
+          "type": "object",
+          "properties": {
+            "phase": {
+              "type": "string",
+              "enum": ["red", "green", "refactor"],
+              "description": "TDD phase after execution"
+            },
+            "testsRun": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of tests executed"
+            },
+            "testsPassed": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of tests passed"
+            },
+            "coverage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Test coverage percentage"
+            }
+          },
+          "description": "TDD cycle results"
+        }
+      },
+      "description": "Command execution result"
+    }
+  },
+  "examples": [
+    {
+      "action": "spec",
+      "phase": "st06-speakers-spl",
+      "options": {
+        "force": false,
+        "interactive": true,
+        "template": "default",
+        "tddMode": true
+      }
+    },
+    {
+      "action": "status", 
+      "phase": "st06-speakers-spl"
+    },
+    {
+      "action": "board"
+    }
+  ]
+}

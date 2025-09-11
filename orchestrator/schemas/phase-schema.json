@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://qualia-nss.local/schemas/phase-validation.json",
+  "title": "Phase Validation Schema",
+  "description": "Validation schema for phase identifiers and metadata",
+  "type": "object",
+  "required": ["phase", "title", "type", "status", "dependencies"],
+  "properties": {
+    "phase": {
+      "type": "string",
+      "pattern": "^st\\d{2}-[a-z0-9-]+$",
+      "description": "Phase identifier matching st##-name pattern"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Human-readable phase title"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Foundation",
+        "Infrastructure", 
+        "Feature",
+        "Integration",
+        "Enhancement",
+        "Meta-Development"
+      ],
+      "description": "Phase category type"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Planning",
+        "Specification Phase",
+        "Research Phase", 
+        "Planning Phase",
+        "Tasks Phase",
+        "Implementation",
+        "Testing",
+        "Completed"
+      ],
+      "description": "Current phase status"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^st\\d{2}-[a-z0-9-]+$"
+      },
+      "uniqueItems": true,
+      "description": "Phase dependencies (must be completed first)"
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Expected phase deliverables"
+    },
+    "nssAlignment": {
+      "type": "object",
+      "properties": {
+        "decisionTree": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Decision tree integration points"
+        },
+        "influenceDiagram": {
+          "type": "array", 
+          "items": {
+            "type": "string"
+          },
+          "description": "Influence diagram integration points"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "NSS methodology requirements"
+        }
+      },
+      "description": "QUALIA•NSS methodology alignment"
+    }
+  },
+  "definitions": {
+    "phaseReference": {
+      "type": "string",
+      "pattern": "^st\\d{2}-[a-z0-9-]+$",
+      "description": "Valid phase reference"
+    }
+  },
+  "examples": [
+    {
+      "phase": "st06-speakers-spl",
+      "title": "Speakers selection, T/S parameters & SPL analysis", 
+      "type": "Feature",
+      "status": "Specification Phase",
+      "dependencies": ["st05-mic-calibration"],
+      "deliverables": [
+        "Speaker selection tool",
+        "T/S parameter analysis",
+        "SPL measurement system"
+      ],
+      "nssAlignment": {
+        "decisionTree": [
+          "Speaker topology selection",
+          "Crossover design decisions"
+        ],
+        "influenceDiagram": [
+          "Room acoustics influence",
+          "Listener preference factors"  
+        ],
+        "requirements": [
+          "Natural frequency response",
+          "Surround sound compatibility"
+        ]
+      }
+    }
+  ]
+}

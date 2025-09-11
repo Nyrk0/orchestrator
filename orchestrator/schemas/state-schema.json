@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://qualia-nss.local/schemas/orchestrator-state.json",
+  "title": "Orchestrator Phase State",
+  "description": "State tracking schema for orchestrator phase workflows",
+  "type": "object",
+  "required": [
+    "phase",
+    "phaseTitle", 
+    "currentStep",
+    "completedSteps",
+    "approvals",
+    "iterations",
+    "blockers",
+    "nextAction",
+    "dependencies",
+    "metadata"
+  ],
+  "properties": {
+    "phase": {
+      "type": "string",
+      "pattern": "^st\\d{2}-[a-z0-9-]+$",
+      "description": "Phase identifier (e.g., st06-speakers-spl)"
+    },
+    "phaseTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Human-readable phase title"
+    },
+    "currentStep": {
+      "type": ["string", "null"],
+      "enum": ["spec", "research", "plan", "tasks", "handoff", null],
+      "description": "Current workflow step"
+    },
+    "completedSteps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["spec", "research", "plan", "tasks", "handoff"]
+      },
+      "uniqueItems": true,
+      "description": "List of completed workflow steps"
+    },
+    "approvals": {
+      "type": "object",
+      "required": ["spec", "research", "plan", "tasks"],
+      "properties": {
+        "spec": {
+          "$ref": "#/definitions/approval"
+        },
+        "research": {
+          "$ref": "#/definitions/approval" 
+        },
+        "plan": {
+          "$ref": "#/definitions/approval"
+        },
+        "tasks": {
+          "$ref": "#/definitions/approval"
+        }
+      },
+      "description": "User approval tracking for each step"
+    },
+    "iterations": {
+      "type": "object",
+      "required": ["spec", "research", "plan", "tasks"],
+      "properties": {
+        "spec": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "research": {
+          "type": "integer", 
+          "minimum": 0
+        },
+        "plan": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "description": "Iteration count for each workflow step"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/blocker"
+      },
+      "description": "Current workflow blockers"
+    },
+    "nextAction": {
+      "type": "string",
+      "enum": [
+        "start_specification",
+        "await_spec_approval", 
+        "start_research",
+        "await_research_approval",
+        "start_plan",
+        "await_plan_approval", 
+        "start_tasks",
+        "await_tasks_approval",
+        "ready_for_handoff",
+        "completed"
+      ],
+      "description": "Next required action"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^st\\d{2}-[a-z0-9-]+$"
+      },
+      "description": "Phase dependencies"
+    },
+    "metadata": {
+      "$ref": "#/definitions/metadata"
+    }
+  },
+  "definitions": {
+    "approval": {
+      "type": ["object", "null"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 approval timestamp"
+        },
+        "iteration": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Approved iteration number"
+        },
+        "approved_by": {
+          "type": "string",
+          "enum": ["user"],
+          "description": "Approval authority"
+        },
+        "comments": {
+          "type": "string",
+          "description": "Optional approval comments"
+        }
+      },
+      "required": ["timestamp", "iteration", "approved_by"],
+      "description": "User approval record"
+    },
+    "blocker": {
+      "type": "object",
+      "required": ["id", "type", "description", "created"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique blocker identifier"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "dependency_missing",
+            "user_approval_pending", 
+            "validation_error",
+            "resource_unavailable",
+            "hierarchical_violation"
+          ],
+          "description": "Blocker category"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable blocker description"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Blocker creation timestamp"
+        },
+        "resolved": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Blocker resolution timestamp"
+        }
+      },
+      "description": "Workflow blocker record"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["created", "lastModified", "orchestratorVersion"],
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "State creation timestamp"
+        },
+        "lastModified": {
+          "type": "string", 
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "orchestratorVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Orchestrator version (semver)"
+        },
+        "tddCycle": {
+          "type": "object",
+          "properties": {
+            "phase": {
+              "type": "string",
+              "enum": ["red", "green", "refactor"],
+              "description": "Current TDD phase"
+            },
+            "lastTest": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Last test execution timestamp"
+            }
+          },
+          "description": "TDD cycle tracking"
+        }
+      },
+      "description": "State metadata"
+    }
+  }
+}
