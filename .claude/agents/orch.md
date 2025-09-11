@@ -15,9 +15,10 @@ Execute via Bash: `cd /path/to/.orchestrator && node cli.js <command> <phase>`
 - **spec** - Interactive specification with intelligent suggestions
 - **research** - Technical analysis with web search and source validation  
 - **plan** - Architecture design and implementation strategy
-- **prd** - MVP definition with semantic analysis (NEW)
+- **prd** - MVP definition with semantic analysis
 - **tasks** - Executable breakdown with T### numbering
 - **status** - Phase progress and approval tracking
+- **dashboard** - Visual project dashboard and proactive advisor
 - **approve** - User approval workflow (`--type spec|research|plan|prd|tasks`)
 - **remember** - Add user directive to project memory
 
