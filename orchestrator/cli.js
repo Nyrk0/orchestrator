@@ -59,6 +59,9 @@ class OrchCLI {
       case 'plan':
         await this.executePlan(phase, options);
         break;
+      case 'prd':
+        await this.executePRD(phase, options);
+        break;
       case 'tasks':
         await this.executeTasks(phase, options);
         break;
@@ -79,6 +82,9 @@ class OrchCLI {
         break;
       case 'export':
         await this.executeExport(phase, options);
+        break;
+      case 'remember':
+        await this.executeRemember(phase, options);
         break;
       case 'version':
         this.showVersion();
@@ -179,6 +185,41 @@ class OrchCLI {
     }
   }
 
+  async executePRD(phase, options) {
+    if (!phase) {
+      console.error('❌ Phase name required for prd command');
+      console.log('Usage: node cli.js prd <phase> --goal "..." --features "..."');
+      return;
+    }
+
+    const parsedOptions = this.parseOptions(options);
+    const prdData = {
+      mvpGoal: parsedOptions.goal || 'MVP goal to be defined through semantic analysis',
+      keyFeatures: parsedOptions.features ? 
+        this.parseFeatures(parsedOptions.features) : [],
+      successMetrics: parsedOptions.metrics ? 
+        this.parseMetrics(parsedOptions.metrics) : [],
+      outOfScope: parsedOptions.outOfScope ? 
+        this.parseOutOfScope(parsedOptions.outOfScope) : []
+    };
+
+    console.log(`🎯 Generating PRD with semantic analysis for ${phase}...`);
+    
+    const result = await this.orchestrator.executeCommand('prd', phase, { prdData, interactive: parsedOptions.interactive });
+    
+    if (result.success) {
+      console.log(`✅ PRD generated successfully`);
+      console.log(`📄 Document: ${result.document}`);
+      console.log(`🧠 Semantic analysis completed`);
+      
+      if (result.data && result.data.estimatedTimeline) {
+        console.log(`⏱️  Estimated timeline: ${result.data.estimatedTimeline}`);
+      }
+    } else {
+      console.error(`❌ PRD generation failed: ${result.error}`);
+    }
+  }
+
   async executeTasks(phase, options) {
     if (!phase) {
       console.error('❌ Phase name required for tasks command');
@@ -233,12 +274,14 @@ class OrchCLI {
       console.log(`   Spec: ${result.approvals.spec ? '✓' : '○'}`);
       console.log(`   Research: ${result.approvals.research ? '✓' : '○'}`);
       console.log(`   Plan: ${result.approvals.plan ? '✓' : '○'}`);
+      console.log(`   PRD: ${result.approvals.prd ? '✓' : '○'}`);
       console.log(`   Tasks: ${result.approvals.tasks ? '✓' : '○'}`);
       
       console.log(`\n🔄 Iterations:`);
       console.log(`   Spec: ${result.iterations.spec}`);
       console.log(`   Research: ${result.iterations.research}`);
       console.log(`   Plan: ${result.iterations.plan}`);
+      console.log(`   PRD: ${result.iterations.prd}`);
       console.log(`   Tasks: ${result.iterations.tasks}`);
       
       if (result.dependencies && result.dependencies.length > 0) {
@@ -503,6 +546,36 @@ class OrchCLI {
     return results;
   }
 
+  async executeRemember(phase, options) {
+    const parsedOptions = this.parseOptions(options);
+    
+    // Get the text from arguments (everything after 'remember')
+    let textToRemember = parsedOptions.text || parsedOptions.note || parsedOptions.directive;
+    
+    // If not in options, try to get from remaining arguments
+    if (!textToRemember && options.length > 0) {
+      textToRemember = options.join(' ').replace(/^["']|["']$/g, ''); // Remove quotes
+    }
+    
+    if (!textToRemember) {
+      console.error('❌ Text required for remember command');
+      console.log('Usage: node cli.js remember "Your important note here"');
+      return;
+    }
+
+    console.log(`🧠 Adding user directive to project memory...`);
+    
+    const result = await this.orchestrator.executeCommand('remember', null, { text: textToRemember });
+    
+    if (result.success) {
+      console.log(`✅ User directive added to project log`);
+      console.log(`📝 Text: "${result.text}"`);
+      console.log(`📍 Location: ${result.location}`);
+    } else {
+      console.error(`❌ Failed to add directive: ${result.error}`);
+    }
+  }
+
   parseOptions(options) {
     const parsed = {};
     
@@ -533,6 +606,21 @@ class OrchCLI {
       purpose: `${comp.trim()} component`,
       dependencies: []
     }));
+  }
+
+  parseFeatures(value) {
+    if (!value) return [];
+    return value.split(',').map(feature => feature.trim());
+  }
+
+  parseMetrics(value) {
+    if (!value) return [];
+    return value.split(',').map(metric => metric.trim());
+  }
+
+  parseOutOfScope(value) {
+    if (!value) return [];
+    return value.split(',').map(item => item.trim());
   }
 
   parseTasks(tasksString, hoursString) {
@@ -589,6 +677,7 @@ COMMANDS:
     spec <phase>        Generate specification document
     research <phase>    Conduct research analysis  
     plan <phase>        Create implementation plan
+    prd <phase>         Generate Product Requirements Document (MVP definition)
     tasks <phase>       Generate task breakdown
     status <phase>      Check phase status
     progress [phase]    Show project completion progress
@@ -596,6 +685,7 @@ COMMANDS:
     workflow <phase>    Execute complete workflow
     batch               Batch process multiple phases
     export <phase>      Export phase data
+    remember "<text>"   Add user directive to project memory
     version             Show version information
 
 EXAMPLES:
@@ -607,6 +697,9 @@ EXAMPLES:
     
     # Create implementation plan
     node cli.js plan st01-audio-engine --architecture "Component-based system" --components "AudioProcessor,UIController"
+    
+    # Generate Product Requirements Document (MVP)
+    node cli.js prd st01-audio-engine --goal "Real-time audio MVP" --features "BasicPlayback,VolumeControl"
     
     # Generate task breakdown
     node cli.js tasks st01-audio-engine --tasks "Setup,Development,Testing" --hours "8,24,12"
@@ -629,6 +722,9 @@ EXAMPLES:
     
     # Export data
     node cli.js export st01-audio-engine --format json --output ./exports/
+    
+    # Add user directive to project memory
+    node cli.js remember "All API endpoints must be secured with OAuth2"
 
 PHASE FORMAT:
     st##-descriptive-name (e.g., st01-foundation, st07-audio-engine)
@@ -641,9 +737,12 @@ OPTIONS:
     --foundation <text>     Technical foundation
     --architecture <text>   Architecture overview
     --components <list>     Component names
+    --goal <text>           PRD MVP goal statement
+    --features <list>       Key MVP features (comma-separated)
+    --metrics <list>        Success metrics (comma-separated)
     --tasks <list>          Task names
     --hours <list>          Estimated hours per task
-    --type <type>           Approval type (spec|research|plan|tasks)
+    --type <type>           Approval type (spec|research|plan|prd|tasks)
     --approved              Mark as approved
     --comments <text>       Approval comments
     --auto-approve          Auto-approve workflow steps

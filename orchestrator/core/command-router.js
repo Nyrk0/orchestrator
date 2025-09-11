@@ -9,8 +9,8 @@ const { globalTaskManager } = require('./task-number-manager');
 class CommandRouter {
   constructor(stateManager) {
     this.stateManager = stateManager;
-    this.validActions = ['spec', 'research', 'plan', 'tasks', 'status', 'audit', 'handoff', 'board'];
-    this.workflowOrder = ['spec', 'research', 'plan', 'tasks'];
+    this.validActions = ['spec', 'research', 'plan', 'prd', 'tasks', 'status', 'audit', 'handoff', 'board'];
+    this.workflowOrder = ['spec', 'research', 'plan', 'prd', 'tasks'];
   }
 
   async handleOrchCommand(action, phase, options = {}) {

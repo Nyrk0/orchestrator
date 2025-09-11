@@ -82,12 +82,14 @@ class OrchStateManager {
         spec: null,
         research: null,
         plan: null,
+        prd: null,
         tasks: null
       },
       iterations: {
         spec: 0,
         research: 0,
         plan: 0,
+        prd: 0,
         tasks: 0
       },
       blockers: [],

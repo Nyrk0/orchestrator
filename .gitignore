@@ -7,6 +7,7 @@ package.json
 # Development artifacts (internal only)
 dev/
 superseded/
+GEMINI.md
 
 # macOS system files
 .DS_Store

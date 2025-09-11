@@ -1,99 +1,148 @@
-# Orchestrator - Agent Context
+# Orchestrator - Claude Code Subagent
 
 ## Project Overview
-A specification-driven development orchestrator Claude subagent for project development, designed to manage and automate development workflows through orch as invoqued agent in Claude Code CLI
+A comprehensive specification-driven development orchestrator **orch Claude Code subagent** designed to transform chaotic development into systematic workflows through interactive interviews, intelligent suggestions, and approval-gated phases.
 
-Documentation is stored in the `docs` directory, must me consulted in research to understand how to use subagents and create custom slash commands for orchestrator.
-[sub-agents](dev/st00-orchestrator/docs/sub-agents.md)
-[slash-commands](dev/st00-orchestrator/docs/slash-commands.md)
-[hooks](dev/st00-orchestrator/docs/hooks.md)
+**Status**: ✅ **PRODUCTION READY** - Fully functional and installable via GitHub
+**Repository**: https://github.com/Nyrk0/orchestrator
 
-## Core Architecture
-Actually wrong implementation of core architecture with all main commands as .js. Many or all of them should be scripts allowed to be executed by the orch subagent. So, main components needs to be audited and updated to be scripts for subagent execution.
+## Core Architecture ✅ SOLVED
+
+**Architecture**: Hybrid approach using Node.js CLI with Bash tool integration
+- **Orch Subagent** (`.claude/agents/orch.md`): Enhanced with intelligent suggestions and user feedback styles
+- **CLI Tool** (`orchestrator/cli.js`): Functional command-line interface
+- **Bash Integration**: Orch subagent executes commands via Bash tool
+
 ### Main Components
-- **Orchestrator** (`core/orchestrator.js`): Central controller managing the workflow and command execution
-- **State Manager** (`core/state-manager.js`): Handles persistence and retrieval of orchestrator state
-- **Template Engine** (`core/template-engine.js`): Manages templates for various outputs
-- **Error Handler** (`core/error-handler.js`): Centralized error handling and reporting
-- **Command Router** (`core/command-router.js`): Routes commands to appropriate handlers
+- **Orchestrator** (`orchestrator/core/orchestrator.js`): Central controller managing workflow
+- **State Manager** (`orchestrator/core/state-manager.js`): State persistence and retrieval
+- **Template Engine** (`orchestrator/core/template-engine.js`): Template management
+- **Command Router** (`orchestrator/core/command-router.js`): Command routing and execution
+- **Installation Script** (`install-orchestrator.sh`): Portable installation system
 
-### Key Commands
-commands to be created as scripts for execution by the orch subagent, when added after subagent invocation:
-- `orch`: Invokes orch subagent
-- `spec`: Handle specification-related operations
-- `research`: Manage research tasks and documentation
-- `plan`: Create and manage development plans
-- `tasks`: Handle task management
-- `approve`: Process approval workflows
-- `status`: Check system status
-examples:
-- /orch spec <phase> : orch subagent uses spec command to generate specification for the given phase
-- /orch research <phase> : orch subagent uses research command to generate research for the given phase
-- /orch plan <phase> : orch subagent uses plan command to generate plan for the given phase
-- /orch tasks <phase> : orch subagent uses tasks command to generate tasks for the given phase
-- /orch approve <phase> : orch subagent uses approve command to approve the given phase
-- /orch status <phase> : orch subagent uses status command to check the status of the given phase
-**Only if orch subagent can not be invoqued by /orch command**, then main agent must pass the command to orch subagent as a string to be executed by the orch subagent: "Use orch to spec wowowo new project"
-**ALL prompts containing "use orch" and a command** MUST be passed to orch subagent as a string to be executed by the orch subagent: "Use orch to spec wowowo new project"**
+### Orch Subagent Commands
+**Execution Pattern**: `cd /path/to/.orchestrator && node cli.js <command> <phase>`
 
-## Development Workflow
-1. **Specification Phase**: Define requirements and specifications
-2. **Research Phase**: Conduct necessary research
-3. **Planning Phase**: Create development plans
-4. **Task Execution**: Implement planned tasks
+Available commands:
+- `/orch spec <phase>` - Interactive specification generation with intelligent suggestions
+- `/orch research <phase>` - Research analysis with adaptive depth and source validation
+- `/orch plan <phase>` - Implementation planning with architectural design
+- `/orch tasks <phase>` - Task breakdown with dependencies and T### numbering
+- `/orch approve <phase>` - Approval workflows with state management
+- `/orch status <phase>` - Comprehensive phase status and progress tracking
 
-## Technical Stack
-Must be updated to use scripts instead of .js files
-- **Runtime**: Node.js
-- **Testing**: Jest
-- **Dependencies**:
-  - `ajv`: For JSON schema validation
-  - `ajv-formats`: Additional validation formats for AJV
+### Enhanced Features
+- **Intelligent Suggestions**: Context-aware recommendations during interviews
+- **User Feedback Styles**: user-friendly, professional, sudo-style options
+- **Approval Gates**: Sequential workflow enforcement (spec → research → plan → tasks)
+- **State Persistence**: Maintains workflow state across command invocations
 
-## Project Structure
-Must be updated for subagent execution and keep isolation between orch subagent and the project structure
-```
-orchestrator/
-├── commands/         # Command implementations
-├── core/            # Core functionality
-├── orchestrator-states/ # State storage
-├── schemas/         # JSON schemas
-├── scripts/         # Utility scripts
-├── templates/       # Template files
-└── tests/           # Test files
-```
+## Installation & Usage
 
-## Development Practices
-- Test-driven development (TDD) focused
-- Comprehensive test coverage (80%+ required)
-- Clear separation of concerns
-- Modular architecture
-
-## Important Notes
-- The system follows a phase-based workflow (e.g., st01, st02, etc.)
-- State is persisted between command invocations
-- Commands are designed to be idempotent when possible
-- Error handling is centralized for consistent behavior
-
-## Common Workflows
-
-### Starting a New Phase
-1. Create specification with `spec` command
-2. Conduct research using `research` command
-3. Generate plan with `plan` command
-4. Execute tasks using `tasks` command
-
-### Checking Status
+### Quick Install
 ```bash
-node cli.js status
+# Clone and install in any project
+git clone https://github.com/Nyrk0/orchestrator.git
+cd orchestrator
+./install-orchestrator.sh /path/to/your-project
+
+# Or install in current directory
+./install-orchestrator.sh
 ```
 
-### Running Tests
+### Usage Methods
+1. **Claude Code CLI (Recommended)**: `/orch spec st01-authentication`
+2. **Convenience Wrapper**: `./orch spec st01-authentication`
+3. **Direct CLI**: `cd .orchestrator && node cli.js spec st01-authentication`
+
+## Development Workflow ✅ IMPLEMENTED
+
+**Four-Phase Sequential Workflow with Approval Gates:**
+
+1. **📋 Specification Phase**: Interactive interviews with intelligent suggestions
+2. **🔬 Research Phase**: Technical analysis with validated sources and web research
+3. **📐 Planning Phase**: Architectural design and implementation strategies
+4. **✅ Tasks Phase**: Executable task breakdown with T### numbering and dependencies
+
+**User Experience Features:**
+- **First-run setup**: User selects feedback style (user-friendly/professional/sudo-style)
+- **Intelligent suggestions**: Context-aware recommendations during interviews
+- **Approval gates**: Explicit user approval required between phases
+- **State persistence**: Maintains workflow state across command invocations
+
+## Technical Stack ✅ PRODUCTION READY
+- **Runtime**: Node.js (v16+)
+- **Integration**: Claude Code CLI subagent system
+- **Testing**: Jest with 80%+ coverage requirements
+- **Dependencies**: `ajv`, `ajv-formats` for JSON schema validation
+- **Installation**: Bash script with npm dependency management
+
+## Project Structure ✅ CLEAN & ORGANIZED
+```
+target-project/
+├── .orchestrator/           # Installed orchestrator tool (hidden)
+│   ├── cli.js              # Main CLI interface
+│   ├── commands/           # Command implementations
+│   ├── core/               # Core functionality  
+│   ├── templates/          # Template files
+│   └── package.json        # Dependencies
+├── .claude/                # Claude Code integration
+│   └── agents/
+│       └── orch.md         # Enhanced orch subagent
+├── dev/                    # Generated phase documentation
+│   └── st##-name/         # Phase-specific folders
+└── orch                    # Convenience wrapper script
+```
+
+## Key Features ✅ COMPLETED
+
+### Enhanced Orch Subagent
+- **Intelligent Interview System**: Provides context-aware suggestions during specification gathering
+- **User Feedback Styles**: Adapts communication style (user-friendly, professional, sudo-style)
+- **Approval Workflow**: Enforces sequential progression with explicit user approval gates
+- **State Management**: Persists workflow state and user preferences across sessions
+- **Bash Tool Integration**: Direct command execution via Claude Code's Bash tool
+
+### Installation System
+- **Portable Installation**: Single script installs orchestrator in any project
+- **Clean Integration**: Hidden `.orchestrator` folder keeps project clean
+- **Update Capability**: Can replace tool files while preserving user data
+- **Cross-platform**: Works on any system with Node.js and Claude Code CLI
+
+### Documentation & User Experience
+- **Comprehensive README**: Complete installation, usage, and troubleshooting guide
+- **Workflow Diagrams**: Visual ASCII and Mermaid diagrams explaining the methodology
+- **Three Usage Methods**: Claude Code CLI, convenience wrapper, and direct CLI access
+- **MIT License**: Open source and ready for community use
+
+## Important Notes for Claude Code Usage
+
+### Primary Usage Pattern
 ```bash
-npm test           # Run all tests
-npm run test:watch # Run in watch mode
-npm run test:coverage # Generate coverage report
+# Always prefer Claude Code CLI orch subagent
+/orch spec st01-authentication
+/orch research st01-authentication  
+/orch plan st01-authentication
+/orch tasks st01-authentication
 ```
 
-## Environment Variables
-Configuration is managed through environment variables (see `.env.example` for reference)
+### Phase Management
+- **Phase naming**: Use `st##-descriptive-name` format (e.g., `st01-foundation`)
+- **Sequential workflow**: Must complete spec → research → plan → tasks in order
+- **Approval gates**: Explicit user approval required between each phase
+- **State persistence**: All workflow state maintained automatically
+
+### Integration with Development
+After task approval, hand off to Claude Code for implementation:
+```
+The tasks are approved. Please implement:
+- T001: Setup authentication middleware
+- T002: Implement JWT token generation  
+- T003: Create user validation service
+
+Refer to complete specification at dev/st01-authentication/
+```
+
+## Status: Production Ready 🚀
+
+Orchestrator is **fully functional and ready for use**. The system successfully transforms chaotic development into systematic, specification-driven workflows through intelligent interviews, contextual suggestions, and approval-gated progression.

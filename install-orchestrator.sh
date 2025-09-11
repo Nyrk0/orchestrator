@@ -17,9 +17,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ORCHESTRATOR_SOURCE="$SCRIPT_DIR/orchestrator"
 ORCH_AGENT_SOURCE="$SCRIPT_DIR/.claude/agents/orch.md"
 
-# Default target is current directory
-TARGET_DIR="${1:-.}"
-TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+# Target project root - use absolute path of where script is run from
+if [ -n "$1" ]; then
+    # If argument provided, use it as target
+    TARGET_DIR="$(cd "$1" && pwd)"
+else
+    # Use current working directory (where user runs the script)
+    TARGET_DIR="$(pwd)"
+fi
 
 echo -e "${BLUE}🎯 Orchestrator Installation Script${NC}"
 echo "=================================="
