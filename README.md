@@ -71,7 +71,9 @@ graph TD
 ### System Requirements
 
 - **Claude Code CLI** (required for orch subagent)
-- **Node.js** (v16+ recommended)
+- **Node.js** (v14.0.0+ required, v16+ recommended)
+- **Bash** (v4.0+ for security features)
+- **Standard Unix tools** (cp, chmod, mkdir, diff, cmp)
 
 ### Quick Install
 
@@ -80,12 +82,24 @@ graph TD
 git clone https://github.com/Nyrk0/orchestrator
 cd orchestrator
 
-# Install in any project
+# Install in any project (with security validation)
 ./install-orchestrator.sh [target-project-path]
 
 # Or install in current directory
 ./install-orchestrator.sh
 ```
+
+### 🔒 Security-Hardened Installation
+
+The installer includes comprehensive security features:
+
+- **Input Validation**: Path sanitization and injection prevention
+- **File Integrity**: Verification of all source files before installation
+- **Secure Operations**: Proper file permissions (644 files, 755 directories)
+- **Node.js Validation**: Minimum version requirement enforcement
+- **Dependency Security**: npm audit integration for vulnerability detection
+- **Backup System**: Automatic backup of existing installations
+- **Multi-stage Testing**: Syntax validation and functionality verification
 
 ### What Gets Installed
 
@@ -102,6 +116,46 @@ target-project/
 └── orch                   # Convenience wrapper script
 ```
 
+### Installation Features
+
+#### 🔍 **Intelligent File Handling**
+
+When updating an existing installation, the installer provides smart file comparison:
+
+```bash
+# If existing orch.md is found:
+📋 File Comparison:
+   Source:      /source/.claude/agents/orch.md
+   Destination: /target/.claude/agents/orch.md
+
+Differences found:
+--- Current (destination)
++++ New (source)
+@@ -1,3 +1,5 @@
+ # Orch Agent
++
++## New Features
++- Enhanced dashboard commands
+
+Choose an option:
+  1) Replace with new version
+  2) Keep current version
+  3) Create backup and replace
+  4) Show full file comparison
+Enter choice [1-4]:
+```
+
+#### 🛡️ **Security Validation**
+
+```bash
+# The installer performs comprehensive checks:
+✅ Validating Node.js version (minimum v14.0.0)
+✅ Verifying source file integrity
+✅ Sanitizing installation paths
+✅ Running npm security audit
+✅ Testing installation functionality
+```
+
 ### Verification
 
 ```bash
@@ -110,6 +164,9 @@ target-project/
 
 # Test orch subagent (in Claude Code)
 /orch status
+
+# Verify security features
+./orch --version
 ```
 
 ## 📖 User Guide
@@ -491,12 +548,16 @@ See orch-log.md for project memory and constraints.
 
 #### 4. Missing dependencies
 
-**Problem**: npm install fails
+**Problem**: npm install fails or security vulnerabilities detected
 **Solution**:
 ```bash
+# The installer automatically runs security checks
+# If vulnerabilities are found, review the audit report
 cd .orchestrator
-npm install
-# Or reinstall orchestrator
+npm audit
+npm audit fix
+
+# Or reinstall with fresh dependencies
 ./install-orchestrator.sh
 ```
 
@@ -520,8 +581,18 @@ ls -la .claude/agents/orch.md
 **Problem**: Script execution fails
 **Solution**:
 ```bash
+# Make installer executable
 chmod +x install-orchestrator.sh
+
+# The installer automatically sets proper permissions:
+# - Files: 644 (readable by all, writable by owner)
+# - Directories: 755 (executable/searchable by all)
+# - Scripts: 755 (executable by all)
+
+# Manual permission fix if needed
 chmod +x orch
+chmod -R 644 .orchestrator/*.js
+chmod 755 .orchestrator/
 ```
 
 #### 7. Interactive prompts not working
@@ -566,20 +637,90 @@ chmod +x orch
 
 ## 🔄 Update Installation
 
-To update an existing orchestrator installation:
+### Smart Update Process
+
+The installer automatically handles updates with intelligent file comparison:
 
 ```bash
-# Reinstall (preserves state files)
+# Smart update (with file comparison prompts)
 ./install-orchestrator.sh
 
-# Force clean install
+# The installer will:
+# 1. Detect existing installations
+# 2. Compare files and show differences
+# 3. Prompt for user decisions on conflicts
+# 4. Create backups when requested
+# 5. Preserve all project state and configuration
+```
+
+### Update Options
+
+```bash
+# Standard update with prompts
+./install-orchestrator.sh
+
+# Force clean install (removes all existing files)
 rm -rf .orchestrator .claude/agents/orch.md orch
 ./install-orchestrator.sh
+
+# Backup existing installation manually
+cp -r .orchestrator .orchestrator.backup.$(date +%Y%m%d)
+./install-orchestrator.sh
 ```
+
+### Rollback Support
+
+If issues occur after update:
+
+```bash
+# The installer creates automatic backups:
+# .orchestrator.backup.YYYYMMDD-HHMMSS/
+# .claude/agents/orch.md.backup.YYYYMMDD-HHMMSS
+
+# Restore from backup if needed
+mv .orchestrator.backup.20240911-140530 .orchestrator
+mv .claude/agents/orch.md.backup.20240911-140530 .claude/agents/orch.md
+```
+
+## 📋 Changelog
+
+### v2.1.0 - Security & UX Enhancement (2024-09-11)
+
+#### 🔒 **Security Hardening**
+- **Input Validation**: Added comprehensive path sanitization and injection prevention
+- **File Integrity**: Implemented verification of all source files before installation
+- **Permission Security**: Enforced secure file permissions (644 files, 755 directories)
+- **Dependency Security**: Integrated npm audit for vulnerability detection
+- **Version Validation**: Added Node.js minimum version requirement (v14.0.0+)
+
+#### 🔍 **Intelligent File Management**
+- **Smart File Comparison**: Automatic detection and comparison of existing `orch.md` files
+- **User Choice Interface**: Interactive prompts for file conflict resolution
+- **Backup Integration**: Timestamped backup creation with rollback support
+- **Diff Visualization**: Visual file differences using unified diff format
+
+#### 🛡️ **Enhanced Installation Process**
+- **Multi-stage Testing**: Comprehensive validation including syntax and functionality checks
+- **Backup System**: Automatic backup of existing installations before updates
+- **Error Recovery**: Improved error handling with detailed diagnostic messages
+- **Self-Installation Detection**: Smart handling when installing from source directory
+
+#### 🐛 **Bug Fixes**
+- Fixed version comparison logic for Node.js version validation
+- Resolved copy errors when source and destination paths are identical
+- Improved compatibility with various system configurations
+
+#### 📖 **Documentation Updates**
+- Enhanced README with security feature documentation
+- Added troubleshooting section for common installation issues
+- Documented new file comparison and backup features
+- Updated system requirements and verification procedures
 
 ## 📚 Additional Resources
 
 - **Templates**: `.orchestrator/templates/`
+- **Security Guide**: Enhanced installation script with comprehensive validation
+- **Backup & Recovery**: Automatic backup system with rollback procedures
 
 ---
 

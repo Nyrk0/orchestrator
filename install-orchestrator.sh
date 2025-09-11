@@ -336,8 +336,104 @@ echo -e "${YELLOW}🤖 Installing orch subagent...${NC}"
 mkdir -p "$CLAUDE_AGENTS_TARGET"
 chmod 755 "$CLAUDE_AGENTS_TARGET"
 
-# Copy orch agent with integrity verification
-secure_copy "$ORCH_AGENT_SOURCE" "$CLAUDE_AGENTS_TARGET/orch.md" "orch subagent"
+# Handle orch agent installation with file comparison
+handle_orch_agent_installation() {
+    local target_file="$CLAUDE_AGENTS_TARGET/orch.md"
+    
+    # Skip if source and destination are the same (installing in same directory)
+    if [[ "$ORCH_AGENT_SOURCE" == "$target_file" ]]; then
+        echo "   Orch agent already in target location, skipping copy..."
+        return 0
+    fi
+    
+    # Check if target file already exists
+    if [[ -f "$target_file" ]]; then
+        echo "   Existing orch.md found at target location"
+        
+        # Compare files
+        if cmp -s "$ORCH_AGENT_SOURCE" "$target_file"; then
+            echo "   Files are identical, no update needed"
+            return 0
+        fi
+        
+        echo ""
+        echo -e "${YELLOW}📋 File Comparison:${NC}"
+        echo "   Source:      $ORCH_AGENT_SOURCE"
+        echo "   Destination: $target_file"
+        echo ""
+        
+        # Show file differences
+        echo -e "${BLUE}Differences found:${NC}"
+        if command -v diff >/dev/null 2>&1; then
+            echo "--- Current (destination)"
+            echo "+++ New (source)"
+            diff -u "$target_file" "$ORCH_AGENT_SOURCE" 2>/dev/null | head -20 || echo "   Files differ significantly"
+        else
+            echo "   Source size: $(wc -c < "$ORCH_AGENT_SOURCE") bytes"
+            echo "   Current size: $(wc -c < "$target_file") bytes"
+        fi
+        
+        echo ""
+        echo -e "${YELLOW}Choose an option:${NC}"
+        echo "  1) Replace with new version"
+        echo "  2) Keep current version"
+        echo "  3) Create backup and replace"
+        echo "  4) Show full file comparison"
+        
+        while true; do
+            read -p "Enter choice [1-4]: " choice
+            case $choice in
+                1)
+                    echo "   Replacing with new version..."
+                    secure_copy "$ORCH_AGENT_SOURCE" "$target_file" "orch subagent"
+                    break
+                    ;;
+                2)
+                    echo "   Keeping current version"
+                    break
+                    ;;
+                3)
+                    local backup_file="$target_file.backup.$(date +%Y%m%d-%H%M%S)"
+                    echo "   Creating backup: $backup_file"
+                    cp "$target_file" "$backup_file" || {
+                        echo -e "${RED}❌ Error: Failed to create backup${NC}" >&2
+                        return 1
+                    }
+                    echo "   Replacing with new version..."
+                    secure_copy "$ORCH_AGENT_SOURCE" "$target_file" "orch subagent"
+                    break
+                    ;;
+                4)
+                    echo ""
+                    echo -e "${BLUE}=== Full File Comparison ===${NC}"
+                    if command -v diff >/dev/null 2>&1; then
+                        diff -u "$target_file" "$ORCH_AGENT_SOURCE" 2>/dev/null || echo "Files differ significantly"
+                    else
+                        echo "Current file:"
+                        head -10 "$target_file"
+                        echo "..."
+                        echo ""
+                        echo "New file:"
+                        head -10 "$ORCH_AGENT_SOURCE"
+                        echo "..."
+                    fi
+                    echo ""
+                    continue
+                    ;;
+                *)
+                    echo "   Invalid choice. Please enter 1, 2, 3, or 4."
+                    continue
+                    ;;
+            esac
+        done
+    else
+        # No existing file, proceed with normal copy
+        secure_copy "$ORCH_AGENT_SOURCE" "$target_file" "orch subagent"
+    fi
+}
+
+# Install orch agent with intelligent handling
+handle_orch_agent_installation
 
 echo -e "${GREEN}✅ Orch subagent installed at .claude/agents/orch.md${NC}"
 
