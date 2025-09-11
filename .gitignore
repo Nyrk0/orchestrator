@@ -8,6 +8,7 @@ package.json
 dev/
 superseded/
 GEMINI.md
+CLAUDE.md
 
 # macOS system files
 .DS_Store

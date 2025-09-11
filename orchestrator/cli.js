@@ -1,13 +1,11 @@
-#!/usr/bin/env node
+async executeDashboard() {
+    console.log(`📊 Generating project dashboard...`);
+    const { DashboardCommand } = require('./commands/dashboard');
+    const command = new DashboardCommand(this.orchestrator);
+    await command.execute();
+  }
 
-/**
- * QUALIA•NSS Orchestrator CLI Interface (T144-T150)
- * Command-line interface for orchestrator operations
- */
-
-const { Orchestrator } = require('./core/orchestrator');
-const { OrchStateManager } = require('./core/state-manager');
-const { TemplateEngine } = require('./core/template-engine');
+  showVersion() {t { TemplateEngine } = require('./core/template-engine');
 const path = require('path');
 const fs = require('fs').promises;
 const os = require('os');
@@ -107,6 +105,9 @@ class OrchCLI {
         break;
       case 'remember':
         await this.executeRemember(phase, options);
+        break;
+      case 'dashboard':
+        await this.executeDashboard();
         break;
       case 'version':
         this.showVersion();

@@ -143,6 +143,9 @@ target-project/
 #### Management Commands
 
 ```bash
+# Generate project dashboard and get next-step advice
+./orch dashboard
+
 # Check phase status
 ./orch status <phase>
 /orch status st01-authentication
@@ -370,6 +373,10 @@ Every session automatically loads relevant context:
 ### 🚀 First Session Intelligence
 
 Orchestrator provides intelligent onboarding:
+
+### 📊 Visual Dashboard & Proactive Advisor
+
+The `/orch dashboard` command provides a high-level visual overview of all project phases and their real-time status. After displaying the dashboard, the Proactive Advisor automatically suggests the most logical next steps for the project, turning `orch` into an active guide.
 
 ```bash
 # Automatic configuration on first use:
