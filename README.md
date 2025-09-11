@@ -20,57 +20,50 @@ Each phase requires **explicit user approval** before progression, ensuring alig
 
 ### Workflow Decision Diagram
 
-```ascii
-┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
-│    SPEC    │→│  RESEARCH  │→│    PLAN    │→│     PRD    │→│   TASKS    │
-│Interactive │  │ Technical  │  │Architecture│  │ MVP & Smart│  │Breakdown & │
-│ Interview  │  │  Analysis  │  │   Design   │  │Prioritization│  │Dependencies│
-└───────────┘  └───────────┘  └───────────┘  └───────────┘  └───────────┘
-     │           │           │           │           │
-     ▼           ▼           ▼           ▼           ▼
-┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
-│USER APPROVAL│  │USER APPROVAL│  │USER APPROVAL│  │USER APPROVAL│  │IMPLEMENTATION│
-│  Required   │  │  Required   │  │  Required   │  │  Required   │  │via Claude   │
-│ to proceed  │  │ to proceed  │  │ to proceed  │  │ to proceed  │  │Code CLI     │
-└───────────┘  └───────────┘  └───────────┘  └───────────┘  └───────────┘
-```
-
 ```mermaid
 graph TD
-    A[Project Start] --> B[📋 SPEC: Interactive Interview]
-    B --> C{User Approval?}
-    C -->|No| B1[Revise Specification]
-    B1 --> B
-    C -->|Yes| D[🔬 RESEARCH: Technical Analysis]
-    D --> E{User Approval?}
-    E -->|No| D1[Revise Research]
-    D1 --> D
-    E -->|Yes| F[📐 PLAN: Architecture Design]
-    F --> G{User Approval?}
-    G -->|No| F1[Revise Plan]
-    F1 --> F
-    G -->|Yes| H[📊 PRD: MVP & Semantic Analysis]
-    H --> I{User Approval?}
-    I -->|No| H1[Revise PRD]
-    H1 --> H
-    I -->|Yes| J[✅ TASKS: Breakdown & Dependencies]
-    J --> K{User Approval?}
-    K -->|No| J1[Revise Tasks]
-    J1 --> J
-    K -->|Yes| L[🚀 IMPLEMENTATION: Claude Code CLI]
-    L --> M{Complete?}
-    M -->|No| N[Debug & Fix]
-    N --> L
-    M -->|Yes| O[✅ Project Complete]
-    
-    style A fill:#e1f5fe
-    style O fill:#e8f5e8
-    style C fill:#fff3e0
-    style E fill:#fff3e0
-    style G fill:#fff3e0
-    style I fill:#fff3e0
-    style K fill:#fff3e0
-    style M fill:#fff3e0
+    subgraph Initial Setup
+        A[Start] --> A1{Config Exists?};
+        A1 -->|No| A2[🚀 First-Run Setup: Configure Preferences];
+        A1 -->|Yes| B[Project Start];
+        A2 --> B;
+    end
+
+    B --> C[📋 SPEC: Interactive Interview];
+    C --> D{User Approval?};
+    D -->|No| C1[Revise Specification];
+    C1 --> C;
+    D -->|Yes| E[🔬 RESEARCH: Technical Analysis];
+    E --> F{User Approval?};
+    F -->|No| E1[Revise Research];
+    E1 --> E;
+    F -->|Yes| G[📐 PLAN: Architecture Design];
+    G --> H{User Approval?};
+    H -->|No| G1[Revise Plan];
+    G1 --> G;
+    H -->|Yes| I[📊 PRD: MVP & Semantic Analysis];
+    I --> J{User Approval?};
+    J -->|No| I1[Revise PRD];
+    I1 --> I;
+    J -->|Yes| K[✅ TASKS: Breakdown & Dependencies];
+    K --> L{User Approval?};
+    L -->|No| K1[Revise Tasks];
+    K1 --> K;
+    L -->|Yes| M[🚀 IMPLEMENTATION: Claude Code CLI];
+    M --> N{Complete?};
+    N -->|No| O[Debug & Fix];
+    O --> M;
+    N -->|Yes| P[✅ Project Complete];
+
+    style A2 fill:#f3e5f5
+    style B fill:#e1f5fe
+    style P fill:#e8f5e8
+    style D fill:#fff3e0
+    style F fill:#fff3e0
+    style H fill:#fff3e0
+    style J fill:#fff3e0
+    style L fill:#fff3e0
+    style N fill:#fff3e0
 ```
 
 ## 🚀 Installation
@@ -84,7 +77,7 @@ graph TD
 
 ```bash
 # Clone or download orchestrator
-git clone <repository-url>
+git clone https://github.com/Nyrk0/orchestrator
 cd orchestrator
 
 # Install in any project
